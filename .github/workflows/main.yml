@@ -10,7 +10,7 @@ on:
 
 env:
   DOCKER_REPO: ${{ secrets.DOCKER_HUB_USERNAME }}/fastapi-app
-  MANIFEST_FILE_PATH: manifests/deployment.yaml 
+  MANIFEST_FILE_PATH: manifests/fastapi-deployment.yaml 
 
 jobs:
   build-and-push:
@@ -45,16 +45,16 @@ jobs:
         with:
           repository: ${{ github.repository_owner }}/fastapi-k8s-manifests
           ssh-key: ${{ secrets.SSH_PRIVATE_ACCESS_KEY }}
+          path: manifests
           
       - name: Update deployment tag and Push
-        id: update_manifest
         run: |
           NEW_TAG="${{ env.DOCKER_REPO }}:v${{ github.run_number }}"
-          DEPLOYMENT_FILE="${{ env.MANIFEST_FILE_PATH }}"
           
           echo "Nova Imagem: $NEW_TAG"
-
-          sed -i "s|image: .*/fastapi-app:.*|image: ${NEW_TAG}|" $DEPLOYMENT_FILE
+          
+          cd manifests
+          sed -i "s|image: .*/fastapi-app:.*|image: ${NEW_TAG}|" fastapi-deployment.yaml
           
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
